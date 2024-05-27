@@ -1,19 +1,21 @@
-// auth/server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/authRoutes');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const authRoutes = require('./routes/auth');
 
 const app = express();
 app.use(express.json());
 
-mongoose.connect('mongodb://mongo:27017/auth', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected')).catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error(err));
 
 app.use('/auth', authRoutes);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Auth service is running on port ${PORT}`);
+  console.log(`Auth service running on port ${PORT}`);
 });
