@@ -1,62 +1,62 @@
-// crud/controllers/dataController.js
-const Data = require('../models/Data');
+const User = require('../models/user');
 
-exports.createData = async (req, res) => {
-  const { name, value } = req.body;
+exports.getUsers = async (req, res) => {
   try {
-    const data = new Data({ name, value });
-    await data.save();
-    res.status(201).send(data);
+    const users = await User.findAll();
+    res.json(users);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-exports.getAllData = async (req, res) => {
+exports.createUser = async (req, res) => {
+  const { name, email, password } = req.body;
+
   try {
-    const data = await Data.find();
-    res.send(data);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword });
+    res.status(201).json(user);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
-exports.getDataById = async (req, res) => {
+exports.updateUser = async (req, res) => {
   const { id } = req.params;
+  const { name, email, password } = req.body;
+
   try {
-    const data = await Data.findById(id);
-    if (!data) {
-      return res.status(404).send({ error: 'Data not found' });
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    res.send(data);
+
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : user.password;
+    user.name = name;
+    user.email = email;
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json(user);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
-exports.updateData = async (req, res) => {
+exports.deleteUser = async (req, res) => {
   const { id } = req.params;
-  const { name, value } = req.body;
-  try {
-    const data = await Data.findByIdAndUpdate(id, { name, value }, { new: true });
-    if (!data) {
-      return res.status(404).send({ error: 'Data not found' });
-    }
-    res.send(data);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
 
-exports.deleteData = async (req, res) => {
-  const { id } = req.params;
   try {
-    const data = await Data.findByIdAndDelete(id);
-    if (!data) {
-      return res.status(404).send({ error: 'Data not found' });
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    res.send({ message: 'Data deleted' });
+
+    await user.destroy();
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };

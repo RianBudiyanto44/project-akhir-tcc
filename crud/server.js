@@ -1,21 +1,20 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const sequelize = require('./db');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-const dataRoutes = require('./routes/data');
-
 const app = express();
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error(err));
-
-app.use('/data', dataRoutes);
+app.use('/api/users', require('./routes/users'));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`CRUD service running on port ${PORT}`);
+
+sequelize.sync().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('Unable to connect to the database:', err);
 });
