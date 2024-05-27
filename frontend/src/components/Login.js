@@ -1,38 +1,35 @@
+// frontend/src/components/Login.js
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { login } from '../services/api';
+import axios from 'axios';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await login({ username, password });
-      localStorage.setItem('token', response.data.token);
-      history.push('/dashboard');
+      const response = await axios.post('YOUR_AUTH_SERVICE_URL/login', { email, password });
+      // Handle successful login, e.g., save token and redirect
+      history.push('/data');
     } catch (error) {
-      console.error(error);
+      console.error('Login failed:', error);
+      // Handle error, show message to user, etc.
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div>
+        <label>Email:</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
       <button type="submit">Login</button>
     </form>
   );
