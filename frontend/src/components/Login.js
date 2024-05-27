@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import authService from '../services/authService';
+// import axios from 'axios';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -8,11 +9,12 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${process.env.REACT_APP_AUTH_SERVICE_URL}/login`, {
-        email,
-        password
-      });
-      localStorage.setItem('token', response.data.token);
+      const response = await authService.login(email, password);
+      // const response = await axios.post(`${process.env.REACT_APP_AUTH_SERVICE_URL}/login`, {
+      //   email,
+      //   password
+      // });
+      localStorage.setItem('token', response.token);
       alert('Login successful');
     } catch (error) {
       alert('Error logging in');
